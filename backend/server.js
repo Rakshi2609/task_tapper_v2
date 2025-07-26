@@ -18,7 +18,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ['https://task-tapper-blush.vercel.app', 'http://localhost:5173'],
+    origin: ['https://task-tapper-v2.vercel.app', 'http://localhost:5173'],
     credentials: true,
     methods: ['GET', 'POST']
   }
