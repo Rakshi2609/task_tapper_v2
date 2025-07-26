@@ -28,7 +28,7 @@ setupWorldChat(io);
 
 app.use(express.json());
 app.use(cors({
-  origin: ['https://task-tapper-blush.vercel.app', 'http://localhost:5173'],
+  origin: ['https://task-tapper-v2.vercel.app', 'http://localhost:5173'],
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
 }));
