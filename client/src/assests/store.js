@@ -211,23 +211,23 @@ export const useAuthStore = create(
 // general services. If they rely heavily on auth state, you might consider moving them
 // inside the store or passing necessary auth data to them.
 
-export const createTask = async (taskData) => {
-    const response = await axios.post(`${API_URL}/createtask`, taskData);
-    return response.data;
-};
+// export const createTask = async (taskData) => {
+//     const response = await axios.post(`${API_URL}/createtask`, taskData);
+//     return response.data;
+// };
 
-export const acceptTask = async ({ taskId, email }) => {
-    const response = await axios.post(`${API_URL}/accepttask`, { taskId, email });
-    return response.data;
-};
+// export const acceptTask = async ({ taskId, email }) => {
+//     const response = await axios.post(`${API_URL}/accepttask`, { taskId, email });
+//     return response.data;
+// };
 
-export const completeTask = async ({ taskId, email }) => {
-    const response = await axios.post(`${API_URL}/updatetask`, { taskId, email });
-    return response.data;
-};
+// export const completeTask = async ({ taskId, email }) => {
+//     const response = await axios.post(`${API_URL}/updatetask`, { taskId, email });
+//     return response.data;
+// };
 
-// If you have an endpoint for getting all emails outside of a user-specific context
-export const getAllEmails = async () => {
-    const response = await axios.get(`${API_URL}/getallemails`); // Adjust this endpoint if needed
-    return response.data.emails;
-};
+// // If you have an endpoint for getting all emails outside of a user-specific context
+// export const getAllEmails = async () => {
+//     const response = await axios.get(`${API_URL}/getallemails`); // Adjust this endpoint if needed
+//     return response.data.emails;
+// };

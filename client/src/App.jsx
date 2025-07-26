@@ -12,6 +12,7 @@ import Navbar from "./components/Navbar";
 import UserProfile from "./components/UserProfile";
 import UserTasks from "./components/UserTasks";
 import AssignedTasks from "./components/AssignedTasks";
+import TaskDetail from "./components/TaskDetail";
 import WorldChat from "./components/WorldChat";
 import { useAuthStore } from "./assests/store";
 
@@ -30,6 +31,8 @@ const App = () => {
         <Route path="/create" element={<CreateTaskForm />} />
         <Route path="/mywork" element={<AssignedTasks />} />
         <Route path="/chat" element={user ? <WorldChat user={user} /> : <Navigate to="/login" />} />
+
+         <Route path="/tasks/:taskId" element={<TaskDetail />} /> 
 
 
         {/* Fallback Route */}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../assests/store";
-import { FaSearch, FaCalendarAlt, FaCheckCircle, FaHourglassHalf } from "react-icons/fa"; // Added FaCheckCircle, FaHourglassHalf
+import { Link } from "react-router-dom"; // Import Link
+import { FaSearch, FaCalendarAlt, FaCheckCircle, FaHourglassHalf } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { motion } from "framer-motion";
@@ -8,24 +9,24 @@ import { motion } from "framer-motion";
 const AssignedTasks = () => {
   const { user, tasks, getAssignedByMe } = useAuthStore();
   const [assignedTasks, setAssignedTasks] = useState([]);
-  const [sortBy, setSortBy] = useState("none"); // Keeping sortBy for now, but not directly exposed via a dropdown. Can be removed if not needed for internal sorting.
+  const [sortBy, setSortBy] = useState("none");
   const [searchTask, setSearchTask] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
-  const [filterStatus, setFilterStatus] = useState("All"); // New state for status filter
+  const [filterStatus, setFilterStatus] = useState("All");
 
   // Fetch tasks assigned by the current user
   useEffect(() => {
     if (user?.email) {
       getAssignedByMe(user.email);
     }
-  }, [user, getAssignedByMe]); // Added getAssignedByMe to dependency array
+  }, [user, getAssignedByMe]);
 
   // Filtering and sorting
   useEffect(() => {
     if (!Array.isArray(tasks)) return;
 
-    let filtered = [...tasks]; // Create a mutable copy
+    let filtered = [...tasks];
 
     // Status Filter
     if (filterStatus === "Pending") {
@@ -38,7 +39,7 @@ const AssignedTasks = () => {
     if (searchTask.trim()) {
       const words = searchTask.toLowerCase().split(" ");
       filtered = filtered.filter((task) =>
-        words.every((word) => task?.task?.toLowerCase().includes(word))
+        words.every((word) => (task?.taskName || "").toLowerCase().includes(word) || (task?.taskDescription || "").toLowerCase().includes(word)) // Search in taskName or taskDescription
       );
     }
 
@@ -61,7 +62,7 @@ const AssignedTasks = () => {
 
     // Sorting (still applied internally, but dropdown is removed)
     if (sortBy === "name") {
-      filtered.sort((a, b) => a?.task?.localeCompare(b?.task));
+      filtered.sort((a, b) => (a?.taskName || a?.task || "").localeCompare(b?.taskName || b?.task || ""));
     } else if (sortBy === "email") {
       filtered.sort((a, b) =>
         (a?.assignedTo || "").localeCompare(b?.assignedTo || "")
@@ -75,7 +76,7 @@ const AssignedTasks = () => {
     }
 
     setAssignedTasks(filtered);
-  }, [tasks, sortBy, searchTask, searchEmail, selectedDate, filterStatus]); // Added filterStatus to dependencies
+  }, [tasks, sortBy, searchTask, searchEmail, selectedDate, filterStatus]);
 
   return (
     <motion.div
@@ -100,13 +101,12 @@ const AssignedTasks = () => {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="bg-transparent outline-none text-gray-700 font-medium cursor-pointer appearance-none pr-6" // pr-6 for space for potential custom arrow
+            className="bg-transparent outline-none text-gray-700 font-medium cursor-pointer appearance-none pr-6"
           >
             <option value="All">All Tasks</option>
             <option value="Pending">Pending</option>
             <option value="Completed">Completed</option>
           </select>
-          {/* You can add a custom dropdown icon here if desired, like FaChevronDown */}
         </motion.div>
 
         {/* Search Task */}
@@ -119,7 +119,7 @@ const AssignedTasks = () => {
           <FaSearch className="text-xl text-blue-500" />
           <input
             type="text"
-            placeholder="Search Task"
+            placeholder="Search Task Name/Description"
             value={searchTask}
             onChange={(e) => setSearchTask(e.target.value)}
             className="bg-transparent outline-none placeholder-gray-400 text-gray-700"
@@ -156,7 +156,7 @@ const AssignedTasks = () => {
             onChange={(date) => setSelectedDate(date)}
             placeholderText="Filter by Due Date"
             className="bg-transparent outline-none placeholder-gray-400 text-gray-700 w-36"
-            dateFormat="PPP" // Nicer date format
+            dateFormat="PPP"
           />
           {selectedDate && (
             <button
@@ -181,23 +181,24 @@ const AssignedTasks = () => {
         </motion.p>
       ) : (
         <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {assignedTasks.map((task, index) => (
+          {assignedTasks.map((task) => (
             <motion.li
-              key={index}
+              key={task._id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * index }}
+              transition={{ duration: 0.5, delay: 0.1 * assignedTasks.indexOf(task) }}
               whileHover={{
                 scale: 1.02,
-                boxShadow: "0 10px 20px rgba(59, 130, 246, 0.3)", // Blue glow
+                boxShadow: "0 10px 20px rgba(59, 130, 246, 0.3)",
                 transition: { duration: 0.2 },
               }}
-              className="relative p-6 rounded-2xl bg-white shadow-lg border border-blue-100 overflow-hidden cursor-pointer"
+              className="relative p-6 rounded-2xl bg-white shadow-lg border border-blue-100 overflow-hidden cursor-pointer group"
             >
+              <Link to={`/tasks/${task._id}`} className="block h-full w-full absolute inset-0 z-20"></Link>
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
               <div className="relative z-10">
                 <p className="text-xl font-bold mb-1 text-gray-800">
-                  {task.task}
+                  {task.taskName }, <span className="text-gray-600">{task.taskDescription}</span>
                 </p>
                 <p className="text-sm text-gray-600 mb-0.5">
                   <span className="font-semibold">Assigned To:</span>{" "}
@@ -233,12 +234,12 @@ const AssignedTasks = () => {
                   Status:{" "}
                   {task.completedDate ? (
                     <span className="ml-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center">
-                      <FaCheckCircle className="w-3 h-3 mr-1" /> {/* Icon added */}
+                      <FaCheckCircle className="w-3 h-3 mr-1" />
                       Completed
                     </span>
                   ) : (
                     <span className="ml-2 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold flex items-center">
-                      <FaHourglassHalf className="w-3 h-3 mr-1" /> {/* Icon added */}
+                      <FaHourglassHalf className="w-3 h-3 mr-1" />
                       Pending
                     </span>
                   )}
